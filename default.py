@@ -4,7 +4,7 @@ import xbmcaddon
 import sys
 import urllib, urllib2
 import re
-import showEpisode, CommonFunctions, os, random
+import showEpisode, CommonFunctions, os#, random
 try:
   import StorageServer
 except:
@@ -241,7 +241,7 @@ def addDirectoryItem(name, parameters={}, pic="", folder=True):
     li = xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=pic)
     if not folder:
         li.setProperty('IsPlayable', 'true')
-    url = sys.argv[0] + '?' + urllib.urlencode(parameters) + "&randTok=" + str(random.randint(1000, 10000))
+    url = sys.argv[0] + '?' + urllib.urlencode(parameters)# + "&randTok=" + str(random.randint(1000, 10000))
     return xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=url, listitem=li, isFolder=folder)
 
 def remove_html_special_chars(inputStr):
