@@ -75,7 +75,8 @@ def checkDefaultIcon(url):
     
 def addEpisodeListToDirectory(epList):
     for episode in epList:
-        addDirectoryItem(episode['title'], {"action" : "episode", "link": episode['url']}, episode['thumb'], False)
+        if not excludeUrl(episode['url']):
+            addDirectoryItem(episode['title'], {"action" : "episode", "link": episode['url']}, episode['thumb'], False)
     xbmcplugin.endOfDirectory(thisPlugin)        
     
 def extractEpisodeLink(episode_h3):

@@ -3,16 +3,20 @@ import re
 import xbmcplugin
 import xbmcgui
 import sys
-import urllib, urllib2
+import urllib, urllib2, CommonFunctions
 try:
     import urlresolver
 except:
     print "No urlresolver"
 
 thisPlugin = int(sys.argv[1])
+common = CommonFunctions
 
 def showEpisode(episode_page):
-    
+    episode_page2 = common.parseDOM(episode_page, "div", attrs={"id": "video-content"})
+    if len(episode_page2):
+      episode_page = episode_page2[0]
+      
     providers = (
         {"function":showEpisodeBip, "regex":"(http://blip.tv/play/.*?)(.html|\")"},
         {"function":showEpisodeYoutube, "regex":"http://www.youtube.com/(embed|v)/(.*?)(\"|\?|\ |&)"},
@@ -23,6 +27,7 @@ def showEpisode(episode_page):
         {"function":showEpisodeGametrailers, "regex":"<a href=\"(http://www.gametrailers.com/videos/(.*).*)\" target=\"_blank\">"},
         {"function":showEpisodeSpringboadAfterResolve, "regex":"<script src=\"http://www.springboardplatform.com/js/overlay\"></script><iframe id=\"(.*?)\" src=\"(.*?)\""},
         {"function":showEpisodeSpike, "regex":"<a href=\"(http://www.spike.com/.*?)\""},
+        {"function":showEpisodeScreenwave, "regex":"((?:[^\"\']*)screenwavemedia.com/(?:[^\/]*)/embed.php(?:[^\"\']*))"},
     )
     
     for provider in providers:
@@ -30,7 +35,38 @@ def showEpisode(episode_page):
         videoItem = regex.search(episode_page)
         if videoItem is not None:
             return provider['function'](videoItem)
+            
+def showEpisodeScreenwave(videoItem):
+    tmpContent = showEpisodeLoadPage(videoItem.group(1))
+  
+    streamerVal = re.compile('streamer(?:[\'|\"]*):(?:[\s|\'|\"]*)([^\']*)', re.DOTALL).findall(tmpContent)
+    flashplayerVal = re.compile('flashplayer(?:[\'|\"]*):(?:[\s|\'|\"]*)([^\']*)', re.DOTALL).findall(tmpContent)
+    levelsVal = re.compile('levels(?:[\'|\"]*): \[(.*)\],', re.DOTALL).findall(tmpContent)
+    files = ""
+    if len(levelsVal)>0:
+        filesVal = re.compile('file(?:[\'|\"]*):(?:[\s|\'|\"]*)([^\'|\"]*)', re.DOTALL).findall(levelsVal[0])
+        for i in range(0,len(filesVal)):
+            if "high" in filesVal[i]:
+                files = filesVal[i]
+                break
+      
+    if len(streamerVal)>0 and len(flashplayerVal)>0 and len(files)>0:
+        rtmpurl = streamerVal[0]
+        swfVfy = flashplayerVal[0]
 
+        fileExt = re.compile('\.([^.]+)$', re.DOTALL).findall(files)
+        if len(fileExt)>0:
+            files = fileExt[0] + ":" + files
+          
+        if rtmpurl[-1:] != "/":
+            rtmpurl = rtmpurl + "/"
+        rtmpurl = rtmpurl + files
+
+        segmentUrl = rtmpurl + " playpath=" + files + " pageurl=" + videoItem.group(1) + " swfVfy=" + swfVfy
+
+        listitem = xbmcgui.ListItem(path=segmentUrl)
+        return xbmcplugin.setResolvedUrl(thisPlugin, True, listitem)
+    
 def showEpisodeSpringboadAfterResolve(videoItem):
     _regex_extractVideoParameters = re.compile("http://cms\.springboard.*\.com/(.*?)/(.*?)/video/(.*?)/.*?/(.*?)")
 
@@ -187,6 +223,7 @@ def showEpisodeSpike(videoItem):
 def showEpisodeLoadPage(url):
     print url
     req = urllib2.Request(url)
+    req.add_header('User-Agent', 'Mozilla/5.0 (Windows NT 6.1; rv:14.0) Gecko/20100101 Firefox/14.0.1')
     response = urllib2.urlopen(req)
     link = response.read()
     response.close()
