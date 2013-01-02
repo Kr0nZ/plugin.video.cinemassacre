@@ -99,6 +99,8 @@ def getXBMCVersion():
     log(version, 3)
     if version.find("-") -1:
         version = version[:version.find("-")]
+    if version.find(" ") -1:
+        version = version[:version.find(" ")]
     version = float(version)
     log(repr(version))
     return version
