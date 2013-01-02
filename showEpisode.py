@@ -3,14 +3,14 @@ import re
 import xbmcplugin
 import xbmcgui
 import sys
-import urllib, urllib2, CommonFunctions
+import urllib, urllib2
 try:
     import urlresolver
 except:
     print "No urlresolver"
-
-thisPlugin = int(sys.argv[1])
+import CommonFunctions
 common = CommonFunctions
+thisPlugin = int(sys.argv[1])
 
 def showEpisode(episode_page):
     episode_page2 = common.parseDOM(episode_page, "div", attrs={"id": "video-content"})
