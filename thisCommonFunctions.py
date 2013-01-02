@@ -298,8 +298,9 @@ def parseDOM(html, name=u"", attrs={}, ret=False):
             for match in lst:
                 log("Getting element content for %s" % match, 4)
                 temp = _getDOMContent(item, name, match, ret).strip()
-                item = item[item.find(temp, item.find(match)) + len(temp):]
-                lst2.append(temp)
+                if temp:
+                    item = item[item.find(temp, item.find(match)) + len(temp):]
+                    lst2.append(temp)
             lst = lst2
         ret_lst += lst
 
