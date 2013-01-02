@@ -3,8 +3,8 @@ import urllib, urllib2, re
 import showEpisode, sys, os#, random
 try: import StorageServer
 except: import storageserverdummy as StorageServer
-import CommonFunctions
-common = CommonFunctions
+import thisCommonFunctions
+common = thisCommonFunctions
 cache = StorageServer.StorageServer("cinemassacre", 24)
 #cache.dbg = True
 #common.dbg = True

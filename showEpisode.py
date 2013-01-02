@@ -8,8 +8,8 @@ try:
     import urlresolver
 except:
     print "No urlresolver"
-import CommonFunctions
-common = CommonFunctions
+import thisCommonFunctions
+common = thisCommonFunctions
 thisPlugin = int(sys.argv[1])
 
 def showEpisode(episode_page):
