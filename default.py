@@ -3,8 +3,9 @@ import urllib, urllib2, re
 import showEpisode, sys, os#, random
 try: import StorageServer
 except: import storageserverdummy as StorageServer
-import thisCommonFunctions
-common = thisCommonFunctions
+import CommonFunctions as common
+import thisCommonFunctions as common2
+
 cache = StorageServer.StorageServer("cinemassacre", 24)
 #cache.dbg = True
 #common.dbg = True
@@ -26,9 +27,9 @@ def retFileAsString(fileName):
     
 def getDefaultIcons():
     xmlContents = retFileAsString(defaultsXML)
-    iconList =  common.parseDOM(xmlContents, "icons")
-    iconUrlList =  common.parseDOM(iconList, "icon", ret="url")
-    iconImgList =  common.parseDOM(iconList, "icon", ret="image")
+    iconList =  common2.parseDOM(xmlContents, "icons")
+    iconUrlList =  common2.parseDOM(iconList, "icon", ret="url")
+    iconImgList =  common2.parseDOM(iconList, "icon", ret="image")
     
     retList = []
     for i in range(0,len(iconUrlList)):
@@ -37,8 +38,8 @@ def getDefaultIcons():
 
 def getNotShownUrls():
     xmlContents = retFileAsString(defaultsXML)
-    exclList =  common.parseDOM(xmlContents, "excludeUrls")
-    urlList =  common.parseDOM(exclList, "url")
+    exclList =  common2.parseDOM(xmlContents, "excludeUrls")
+    urlList =  common2.parseDOM(exclList, "url")
     
     retList = []
     for url in urlList:
@@ -68,8 +69,8 @@ def addEpisodeListToDirectory(epList):
     xbmcplugin.endOfDirectory(thisPlugin)        
     
 def extractEpisodeImg(episode):
-    linkImage = common.parseDOM(episode, "div", attrs={"class": "video-tnail"})
-    linkImage = common.parseDOM(linkImage, "img", ret="src")
+    linkImage = common2.parseDOM(episode, "div", attrs={"class": "video-tnail"})
+    linkImage = common2.parseDOM(linkImage, "img", ret="src")
     linkImageTmp = re.compile('src=([^&]*)', re.DOTALL).findall(linkImage[0])
     if len(linkImageTmp)>0:
         if linkImageTmp[0][:1] != "/":
@@ -126,24 +127,24 @@ def subMenu(link,row='[]'):
 def recentPage():
     global thisPlugin
     page = load_page(baseLink)
-    show = common.parseDOM(page, "div", attrs={"class": "footercontainer3"})
-    show = common.parseDOM(show, "div", attrs={"class": "footeritem"})
-    show = common.parseDOM(show, "li")
+    show = common2.parseDOM(page, "div", attrs={"class": "footercontainer3"})
+    show = common2.parseDOM(show, "div", attrs={"class": "footeritem"})
+    show = common2.parseDOM(show, "li")
     linkList = []
     for item in show:
-        title = common.parseDOM(item, "a")[0]
-        link = common.parseDOM(item, "a", ret="href")[0]
+        title = common2.parseDOM(item, "a")[0]
+        link = common2.parseDOM(item, "a", ret="href")[0]
         linkList.append({"title":title, "url":link, "thumb":""})
     addEpisodeListToDirectory(linkList)
     
 def extractMenu(page,row='[]'):
-    navList = common.parseDOM(page, "div", attrs={"id": "navArea"})
-    navList = common.parseDOM(navList[0], "ul", attrs={"id": "menu-main-menu"})
-    navList = common.parseDOM(navList[0], "li")
+    navList = common2.parseDOM(page, "div", attrs={"id": "navArea"})
+    navList = common2.parseDOM(navList[0], "ul", attrs={"id": "menu-main-menu"})
+    navList = common2.parseDOM(navList[0], "li")
     row2 = eval(row)
     tempCont = navList
     for i in row2:
-        tempCont = common.parseDOM(tempCont[i], "li")
+        tempCont = common2.parseDOM(tempCont[i], "li")
 
     retList = []
     for i in range(0,len(tempCont)):
@@ -160,15 +161,15 @@ def showPage(link):
     link = urllib.unquote(link)
     page = load_page(link)
     # Some pages has the newest video in a "Featured Video" section
-    show = common.parseDOM(page, "div", attrs={"id": "featuredImg"})
+    show = common2.parseDOM(page, "div", attrs={"id": "featuredImg"})
     try:
-        fTitle = common.parseDOM(show, "span", attrs={"id": "archiveCaption"})[0]
-        fTitle = common.parseDOM(fTitle, "a")[0]
-        fLink = common.parseDOM(show, "a", ret="href")[0]
-        fImg = common.parseDOM(show, "img", ret="src")[0]
+        fTitle = common2.parseDOM(show, "span", attrs={"id": "archiveCaption"})[0]
+        fTitle = common2.parseDOM(fTitle, "a")[0]
+        fLink = common2.parseDOM(show, "a", ret="href")[0]
+        fImg = common2.parseDOM(show, "img", ret="src")[0]
     except: print "No featured video found"
 
-    show = common.parseDOM(page, "div", attrs={"id": "postlist"})
+    show = common2.parseDOM(page, "div", attrs={"id": "postlist"})
     episodeList = extractEpisodes(show)
     episodeList.insert(0, {"title":fTitle, "url":fLink, "thumb":fImg})
     #cache.delete(link)
@@ -196,17 +197,17 @@ def showPage(link):
     addEpisodeListToDirectory(episodeList)
 
 def extractEpisodes(show):
-    episodes = common.parseDOM(show, "div", attrs={"class": "archiveitem"})
+    episodes = common2.parseDOM(show, "div", attrs={"class": "archiveitem"})
     linkList = []
     for episode in episodes:
         episode = episode.encode('ascii', 'ignore')
-        episode_link = common.parseDOM(episode, "a", ret="href")[0]
+        episode_link = common2.parseDOM(episode, "a", ret="href")[0]
         if excludeUrl(episode_link):
             continue
-        episode_title = common.parseDOM(episode, "a")[0]
+        episode_title = common2.parseDOM(episode, "a")[0]
         episode_title = re.compile('<div>([^<]*?)</div>').findall(episode_title)[0]
         try:
-            episode_img = common.parseDOM(episode, "img", ret="src")[0]
+            episode_img = common2.parseDOM(episode, "img", ret="src")[0]
         except:
             episode_img = ""
         linkList.append({"title":episode_title, "url":episode_link, "thumb":episode_img})
