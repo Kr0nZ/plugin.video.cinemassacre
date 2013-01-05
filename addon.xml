@@ -3,8 +3,9 @@
   <requires>
     <import addon="xbmc.python" version="2.1.0"/>
     <import addon="xbmc.gui" version="4.0.0"/>
-    <import addon="plugin.video.youtube" version="2.9.1"/>
-    <import addon="plugin.video.bliptv" version="0.4.0"/>
+    <import addon="plugin.video.youtube" version="4.4.1"/>
+    <import addon="plugin.video.bliptv" version="1.8.1"/>
+    <import addon="script.module.parsedom" version="2.5.1" />
   </requires>
   <extension point="xbmc.python.pluginsource" library="default.py">
     <provides>video</provides>
