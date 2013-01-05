@@ -61,9 +61,10 @@ def checkDefaultIcon(url):
     return possibleIcon
     
 def addEpisodeListToDirectory(epList):
+    print "Adding Video List: %s" % epList
     for episode in epList:
         if not excludeUrl(episode['url']):
-            addDirectoryItem(episode['title'], {"action" : "episode", "link": episode['url']}, episode['thumb'], False)
+            addDirectoryItem(remove_html_special_chars(episode['title']), {"action" : "episode", "link": episode['url']}, episode['thumb'], False)
     xbmcplugin.endOfDirectory(thisPlugin)        
     
 def extractEpisodeImg(episode):
@@ -125,8 +126,14 @@ def subMenu(link,row='[]'):
 def recentPage():
     global thisPlugin
     page = load_page(baseLink)
-    show = common.parseDOM(page, "div", attrs={"id": "sidebar-right"})
-    linkList = extractEpisodes(show)
+    show = common.parseDOM(page, "div", attrs={"class": "footercontainer3"})
+    show = common.parseDOM(show, "div", attrs={"class": "footeritem"})
+    show = common.parseDOM(show, "li")
+    linkList = []
+    for item in show:
+        title = common.parseDOM(item, "a")[0]
+        link = common.parseDOM(item, "a", ret="href")[0]
+        linkList.append({"title":title, "url":link, "thumb":""})
     addEpisodeListToDirectory(linkList)
     
 def extractMenu(page,row='[]'):
@@ -152,8 +159,19 @@ def showPage(link):
     global thisPlugin
     link = urllib.unquote(link)
     page = load_page(link)
+    # Some pages has the newest video in a "Featured Video" section
+    show = common.parseDOM(page, "div", attrs={"id": "featuredImg"})
+    try:
+        fTitle = common.parseDOM(show, "span", attrs={"id": "archiveCaption"})[0]
+        fTitle = common.parseDOM(fTitle, "a")[0]
+        fLink = common.parseDOM(show, "a", ret="href")[0]
+        fImg = common.parseDOM(show, "img", ret="src")[0]
+    except: print "No featured video found"
+
     show = common.parseDOM(page, "div", attrs={"id": "postlist"})
     episodeList = extractEpisodes(show)
+    episodeList.insert(0, {"title":fTitle, "url":fLink, "thumb":fImg})
+    #cache.delete(link)
     
     ##Check first page against cache
     cachedPage = pageInCache(episodeList,link) # Returns empty list if cache differs
@@ -187,7 +205,6 @@ def extractEpisodes(show):
             continue
         episode_title = common.parseDOM(episode, "a")[0]
         episode_title = re.compile('<div>([^<]*?)</div>').findall(episode_title)[0]
-        episode_title = remove_html_special_chars(episode_title)
         try:
             episode_img = common.parseDOM(episode, "img", ret="src")[0]
         except:
