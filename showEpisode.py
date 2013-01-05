@@ -34,6 +34,7 @@ def showEpisode(episode_page):
         regex = re.compile(provider['regex'])
         videoItem = regex.search(episode_page)
         if videoItem is not None:
+            print "Using provider: %s" % provider
             return provider['function'](videoItem)
             
 def showEpisodeScreenwave(videoItem):
@@ -82,17 +83,21 @@ def showEpisodeSpringboadAfterResolve(videoItem):
 def showEpisodeBip(videoItem):
     _regex_extractVideoFeedURL = re.compile("file=(.*?)&", re.DOTALL);
     _regex_extractVideoFeedURL2 = re.compile("file=(.*)", re.DOTALL);
+    _regex_extractVideoFeedURL3 = re.compile("data-episode-id=\"(.+?)\"", re.DOTALL);
 
     videoLink = videoItem.group(1)
-    
+
     #GET the 301 redirect URL
     req = urllib2.Request(videoLink)
     response = urllib2.urlopen(req)
     fullURL = response.geturl()
-    
+
     feedURL = _regex_extractVideoFeedURL.search(fullURL)
     if feedURL is None:
         feedURL = _regex_extractVideoFeedURL2.search(fullURL)
+        if feedURL is None:
+            feedURL = _regex_extractVideoFeedURL3.search(response.read())
+
     feedURL = urllib.unquote(feedURL.group(1))
     
     blipId = feedURL[feedURL.rfind("/") + 1:]
