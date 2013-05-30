@@ -46,9 +46,9 @@ def showEpisodeScreenwave(videoItem):
     filesVal = re.compile('file(?:[\'|\"]*):(?:[\s|\'|\"]*)([^\'|\"]*)', re.DOTALL).findall(tmpContent)
 
     for i in range(0,len(filesVal)):
-    if "high" in filesVal[i]:
-        files = filesVal[i]
-        break
+        if "high" in filesVal[i]:
+            files = filesVal[i]
+            break
 
     if len(streamerVal)>0 and len(flashplayerVal)>0 and len(files)>0:
         rtmpurl = streamerVal[0]
