@@ -12,7 +12,7 @@ import thisCommonFunctions
 common = thisCommonFunctions
 thisPlugin = int(sys.argv[1])
 
-def showEpisode(episode_page):
+def showEpisode(episode_page, play=True):
     episode_page2 = common.parseDOM(episode_page, "div", attrs={"id": "video-content"})
     if len(episode_page2):
       episode_page = episode_page2[0]
@@ -35,8 +35,11 @@ def showEpisode(episode_page):
         regex = re.compile(provider['regex'])
         videoItem = regex.search(episode_page)
         if videoItem is not None:
-            print "Using provider: %s" % provider
-            return provider['function'](videoItem)
+            if play == True:
+                print "Using provider: %s" % provider
+                return provider['function'](videoItem)
+            else:
+              return True
             
 def showEpisodeScreenwave(videoItem):
     tmpContent = showEpisodeLoadPage(videoItem.group(1))
