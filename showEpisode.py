@@ -28,7 +28,7 @@ def showEpisode(episode_page, play=True):
         {"function":showEpisodeSpringboadAfterResolve, "regex":"src=\"(http\:\/\/cdn\.springboard\.gorillanation\.com/mediaplayer/springboard/video/(?:.*?)/(?:.*?)/(?:.*?)/)"},
         {"function":showEpisodeSpringboadAfterResolve, "regex":"<script src=\"http://www.springboardplatform.com/js/overlay\"></script><iframe id=\"(?:.*?)\" src=\"(.*?)\""},
         {"function":showEpisodeSpike, "regex":"<a href=\"(http://www.spike.com/.*?)\""},
-        {"function":showEpisodeScreenwave, "regex":"((?:[^\"\']*)screenwavemedia.com/(?:[^\/]*)/embed.php(?:[^\"\']*))"},
+        {"function":showEpisodeScreenwave, "regex":"((?:[^\"\']*)screenwavemedia.com/(?:[^\/]*)/(?:embed|player).php(?:[^\"\']*))"},
     )
     
     for provider in providers:
