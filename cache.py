@@ -32,31 +32,24 @@ class cache(object):
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='cache';")
     tbl = cursor.fetchone()
     if not tbl:
-      print "table does not exist"
       cursor.execute("CREATE TABLE cache(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, data TEXT, lastupdate INTEGER)")
       self.db.commit()
-    else:
-      print "table exists"
       
   def get(self, name, maxAge=__MAXAGE__):
-    print "GET"
     if self.error['error']:
       return False
       
     cursor = self.db.cursor()
     cursor.execute("SELECT * FROM cache WHERE name=?;",(name,))
     data = cursor.fetchone()
-    print data
     if data:
       if int(time.time()) - data[3] < maxAge:
-        print "returning saved data"
         return data[2]
     return False
   
   def save(self, name, data):
     if self.error['error'] or not name:
       return False
-    print [data]
     cursor = self.db.cursor()
     cursor.execute("SELECT * FROM cache WHERE name=?;",(name,))
     tstdata = cursor.fetchone()
@@ -70,10 +63,3 @@ class cache(object):
     
   def close(self):
     self.db.close()
-    
-#test = cache('test.db')
-#print test.get('test2')
-#test.save('test2',['a','b','c'])
-#print test.get('test2')
-
-#test.db.close()

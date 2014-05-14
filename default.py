@@ -82,7 +82,6 @@ class cine(object):
 
     if 'image' in params.keys():
       image = params['image']
-      print "using thumb"
     
     li = xbmcgui.ListItem(title, iconImage=image, thumbnailImage=image)
     url = sys.argv[0] + '?' + urllib.urlencode(params)
@@ -113,8 +112,6 @@ class cine(object):
       actionType = 'main'
       if len(a['children']) == 0:
         actionType = 'display'
-      print a
-      print logo
       params = {'action':actionType,'nav':repr(tmpOffset),'url':a['url']}
       for q in logo.keys():
         if q in a['url']:
@@ -135,7 +132,6 @@ class cine(object):
       for i in range(len(parampairs)):
         splitpair = parampairs[i].split('=')
         if len(splitpair) == 2:
-          print splitpair[1]
           param[splitpair[0]] = urllib.unquote(splitpair[1].replace('+',' '))
           if splitpair[0] == 'nav':
             param['nav'] = eval(param['nav'])
@@ -175,14 +171,8 @@ class cine(object):
     for link in links:
       if 'vidUrl' in link.keys():
         self.addToDir(link['title'], {'action':'playVideo','url':link['vidUrl'], 'name':link['title'],'image':link['thumb']}, False)
-        if not "screenwave" in link['vidUrl']:
-          xbmc.log(str(repr(link)))
-          xbmc.log(link['vidUrl'])
       else:
         xbmc.log("Skipping - NO Vid Url: %s" % str(repr(link)), xbmc.LOGDEBUG)
-      
-    print nextPage
-    print pageTotal
     
     if int(nextPage) < int(pageTotal):
       self.addToDir("Next Page", {'action':'display','url':url,'nextPage':str(nextPage+1)}, True)
@@ -225,11 +215,9 @@ class cine(object):
               {'inUrl':'gametrailers.com','prefix':'[GameTrailers]','count':0}
             ]
             newLinks = []
-            print "#%#$%$%^$%$##%$"
             for a in checkedLink['vidUrl']:
               tmp = copy.deepcopy(new)
               tmp['vidUrl'] = a
-              print a
               for b in possibles:
                 if b['inUrl'] in a:
                   cancelFor = False
@@ -243,18 +231,12 @@ class cine(object):
                   if b['count'] > 0:
                     prefix = prefix + ' [' + str(b['count']) + ']'
                   tmp['title'] = prefix + tmp['title']
-                  print "appending %s" % repr(tmp) 
                   newLinks.append(tmp)
                   b['count'] = b['count'] + 1
                   break
-            print "adding to modified LINKS"
-            print newLinks
             modifiedLinks.append({'index': i, 'links': newLinks})
-            print modifiedLinks
-            print "^^^ mod links"
+
     retLinks = []
-    print "################"
-    print modifiedLinks
     for a in range(len(links)):
       addedMod = False
       for b in modifiedLinks:
@@ -274,12 +256,8 @@ class cine(object):
       link = inQ.get(False)
       cacheLock.acquire()
       cacheTest = cacheDb.get(link)
-      print "saved data for %s:" % link
-      print cacheTest
-      print "###################"
       cacheLock.release()
       if cacheTest:
-        print "got from cache"
         vidLink = pickle.loads(cacheTest)
       else:
         vidPage = self.downloadPage(link)
@@ -341,8 +319,6 @@ class cine(object):
     )
     for a in providers:
       if a['inurl'] in link:
-        print "using provider"
-        print a
         stream_url = a['function'](link)
         item = xbmcgui.ListItem(label=name, iconImage=image, thumbnailImage=image, path=stream_url)
         xbmc.Player().play(stream_url, item)
