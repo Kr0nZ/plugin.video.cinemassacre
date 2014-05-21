@@ -463,7 +463,7 @@ except Exception, ex:
       'trace': urllib.quote_plus(excMsg)
     }
 
-    req = urllib2.Request('http://kr0nz.zapto.org/bugs.php',urllib.urlencode(data))
+    req = urllib2.Request('http://kr0nz.0fees.us/bugs.php',urllib.urlencode(data))
     req.add_header('Content-Type', 'application/x-www-form-urlencoded')
     response = urllib2.urlopen(req, timeout=30)
     page = response.read()
